@@ -1,41 +1,46 @@
 #include "sort.h"
-/**
- * insertion_sort_list - function that sorts a doubly linked list
- *                       of integers in ascending order using the Insertion
- *                       sort algorithm
- * @list: doubly linked list
- * Return: void
- */
 
+/**
+ * insertion_sort_list - sorts a doubly linked list of integers in ascending
+ * order using an insertion sort algorithm
+ * @list: doubly linked list of integers to be sorted
+ */
 void insertion_sort_list(listint_t **list)
 {
-	listint_t *node = NULL, *tmp = NULL;
+	listint_t *lead, *follow, *new, *temp;
 
-	if (list == NULL || *list == NULL || (*list)->next == NULL)
+	if (!list || !(*list) || !((*list)->next))
 		return;
 
-	node = *list;
-	node = node->next;
-	while (node)
+	/* dance begins with 1st from house left following */
+	follow = (*list);
+	/* and next dancer to house right leading */
+	lead = (*list)->next;
+	while (lead)
 	{
-		while (node->prev && node->n < (node->prev)->n)
+		new = lead->next;
+		while (follow && lead->n < follow->n)
 		{
-			tmp = node;
-			if (node->next)
-				(node->next)->prev = tmp->prev;
-			(node->prev)->next = tmp->next;
-			node = node->prev;
-			tmp->prev = node->prev;
-			tmp->next = node;
-			if (node->prev)
-				(node->prev)->next = tmp;
-			node->prev = tmp;
-			if (tmp->prev == NULL)
-				*list = tmp;
+			/* lead and follow swap positions */
+			if (follow->prev)
+				follow->prev->next = lead;
+			else
+				/* if lead makes it to house left, now head */
+				*list = lead;
+			if (lead->next)
+				lead->next->prev = follow;
+			temp = lead->next;
+			lead->next = follow;
+			lead->prev = follow->prev;
+			follow->next = temp;
+			follow->prev = lead;
 			print_list(*list);
-			node = node->prev;
+			/* compare next pair, flowing to house left */
+			follow = lead->prev;
 		}
-		node = node->next;
+		/* lead sorted to left, new cycle starts @ right leading edge */
+		lead = new;
+		if (lead)
+			follow = lead->prev;
 	}
-
 }
