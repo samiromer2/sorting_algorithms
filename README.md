@@ -1,2 +1,1 @@
-# sorting_algorithms
-alx sorting_algorithms
+for the alx part
