@@ -1,119 +1,69 @@
 #include "sort.h"
-#include <stdlib.h>
-#include <stdio.h>
-
 /**
- * PrintArray - prints array of integers for range of indicies
- * @array: array of values to be printed
- * @iBeg: starting index value
- * @iEnd: ending index value
- */
-void PrintArray(int *array, int iBeg, int iEnd)
+ * merge - merges l and r arrays into original array
+ * @array: pointer to array
+ * @size: size of the array
+ * @l: pointer to left array
+ * @r: pointer to right array
+ **/
+void merge(int *array, int *l, int *r, size_t size)
 {
-	int i;
+	int i = 0, j = 0, k = 0;
+	int size_l, size_r;
 
-	for (i = iBeg; i < iEnd; i++)
-		if (i < iEnd - 1)
-			printf("%i, ", array[i]);
-		else
-			printf("%i\n", array[i]);
-}
-
-/**
- * CopyArray - simple 1 for 1 copy of source[] to dest[]
- * @source: array of values to be sorted
- * @iBeg: starting index value
- * @iEnd: ending index value
- * @dest: array to store sorted integers
- */
-void CopyArray(int *source, int iBeg, int iEnd, int *dest)
-{
-	int i;
-
-	for (i = iBeg; i < iEnd; i++)
-		dest[i] = source[i];
-}
-
-/**
- * TopDownMerge - sorts subsections ("runs") of source[] by ascending value
- * @source: array of values to be sorted
- * @iBeg: left run starting index value
- * @iMid: right run starting index value
- * @iEnd: right run ending index value
- * @dest: array to store sorted integers
- */
-void TopDownMerge(int *source, int iBeg, int iMid, int iEnd, int *dest)
-{
-	int i, j, k;
-
-	i = iBeg, j = iMid;
-
+	size_l = size / 2;
+	size_r = size - size_l;
 	printf("Merging...\n");
 	printf("[left]: ");
-	PrintArray(source, iBeg, iMid);
+	print_array(l, size_l);
 	printf("[right]: ");
-	PrintArray(source, iMid, iEnd);
-	/* While there are elements in the left or right runs... */
-	for (k = iBeg; k < iEnd; k++)
+	print_array(r, size_r);
+
+	while (i < size_l && j < size_r)
 	{
-		/* If left run head exists and is <= existing right run head */
-		if (i < iMid && (j >= iEnd || source[i] <= source[j]))
-		{
-			dest[k] = source[i];
-			i++;
-		}
+		if (l[i] < r[j])
+			array[k++] = l[i++];
 		else
-		{
-			dest[k] = source[j];
-			j++;
-		}
+			array[k++] = r[j++];
 	}
+
+	while (i < size_l)
+		array[k++] = l[i++];
+
+	while (j < size_r)
+		array[k++] = r[j++];
 	printf("[Done]: ");
-	PrintArray(dest, iBeg, iEnd);
+	print_array(array, size);
 }
-
 /**
- * TopDownSplitMerge - recursive engine of merge_sort, splits working copy of
- * array into left and right runs, then merges with TopDownMerge
- * @source: array of integers to be sorted
- * @iBeg: starting index value
- * @iEnd: ending index value
- * @dest: array to store sorted integers
- */
-void TopDownSplitMerge(int *source, int iBeg, int iEnd, int *dest)
-{
-	int iMid;
-
-	if (iEnd - iBeg < 2) /* if run size == 1 */
-		return;     /* consider it sorted */
-	/* split the run longer than 1 item into halves */
-	iMid = (iEnd + iBeg) / 2;
-
-	TopDownSplitMerge(dest, iBeg, iMid, source);  /* sort left run */
-	TopDownSplitMerge(dest, iMid, iEnd, source);  /* sort right run */
-	/* merge the resulting runs from array[] into work_copy[] */
-	TopDownMerge(source, iBeg, iMid, iEnd, dest);
-}
-
-/**
- * merge_sort - sorts an array of integers in ascending order using a
- * top-down merge sort algorithm
- * @array: array of integers to be sorted
- * @size: amount of elements in array
- */
+ * merge_sort - sorts an array of integers in ascending order using
+ * the Merge sort algorithm
+ * @array: pointer to array
+ * @size: size of the array
+ **/
 void merge_sort(int *array, size_t size)
 {
-	int *work_copy;
+	size_t mid = 0, i;
+	int left[1000];
+	int right[1000];
 
-	if (!array || size < 2)
+	if (!array)
 		return;
 
-	work_copy = malloc(sizeof(int) * size);
-	if (!work_copy)
+	if (size < 2)
 		return;
 
-	CopyArray(array, 0, size, work_copy);
-	TopDownSplitMerge(work_copy, 0, size, array);
+	mid = size / 2;
+	/*left = (int*)malloc(sizeof(int) * mid);*/
+	/*right = (int*)malloc(sizeof(int) * (size - mid));*/
 
-	free(work_copy);
+	for (i = 0; i < mid; i++)
+		left[i] = array[i];
+
+	for (i = mid; i < size; i++)
+		right[i - mid] = array[i];
+
+	merge_sort(left, mid);
+	merge_sort(right, size - mid);
+	merge(array, left, right, size);
 }
